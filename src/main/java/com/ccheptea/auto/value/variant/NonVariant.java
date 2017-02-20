@@ -25,5 +25,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 @Retention(SOURCE)
 @Target({METHOD, PARAMETER, FIELD})
-public @interface Constant {
+public @interface NonVariant {
+    String[] value() default {""};
 }

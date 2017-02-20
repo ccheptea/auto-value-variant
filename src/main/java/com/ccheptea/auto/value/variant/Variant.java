@@ -17,4 +17,10 @@ package com.ccheptea.auto.value.variant;
 
 public interface Variant<T> {
     boolean variantOf(T other);
+
+    boolean variantOf(T other, String group);
+
+    boolean variantOrEqual(T other);
+
+    boolean variantOrEqual(T other, String group);
 }

@@ -19,17 +19,8 @@ import com.google.auto.service.AutoService;
 import com.google.auto.value.extension.AutoValueExtension;
 import com.squareup.javapoet.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.Name;
+import java.util.*;
+import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 
 @AutoService(AutoValueExtension.class)
@@ -38,7 +29,14 @@ public class AutoValueVariantExtension extends AutoValueExtension {
 
     @Override
     public boolean applicable(Context context) {
-        return getInterfaceType(variantInterface, context) != null;
+        boolean found = getInterfaceType(variantInterface, context) != null;
+        System.out.println("Found one!");
+        return found;
+    }
+
+    @Override
+    public boolean mustBeFinal(Context context) {
+        return false;
     }
 
     @Override
@@ -49,8 +47,6 @@ public class AutoValueVariantExtension extends AutoValueExtension {
         Map<String, ExecutableElement> properties = context.properties();
         TypeName parametrizedType = getParametrizedType(context);
 
-        System.out.println("Auto Value Class => " + superQualifiedName);
-        System.out.println("ParametrizedType => " + parametrizedType);
         if (parametrizedType == null || !superQualifiedName.toString().equals(parametrizedType.toString())) {
             throw new RuntimeException("Missing Parametrized Type " + superQualifiedName);
         }
@@ -60,6 +56,10 @@ public class AutoValueVariantExtension extends AutoValueExtension {
                 .superclass(ClassName.get(packageName, classToExtend))
                 .addMethod(generateConstructor(properties))
                 .addMethod(generateVariantOf(superName, parametrizedType, properties))
+                .addMethod(generateVariantOfInGroup(superName, parametrizedType, properties))
+                .addMethod(generateVariantOrEqual(superName, parametrizedType, properties))
+                .addMethod(generateVariantOrEqualInGroup(superName, parametrizedType, properties))
+                .addMethod(generateGroupFieldsEqual(superName, parametrizedType, properties))
                 .build();
 
         JavaFile javaFile = JavaFile.builder(packageName, subclass).build();
@@ -68,6 +68,7 @@ public class AutoValueVariantExtension extends AutoValueExtension {
 
     private TypeName getParametrizedType(Context context) {
         TypeMirror interfaceType = getInterfaceType(variantInterface, context);
+
         if (interfaceType == null) {
             return null;
         }
@@ -94,38 +95,104 @@ public class AutoValueVariantExtension extends AutoValueExtension {
                 .build();
     }
 
-    private static MethodSpec generateVariantOf(Name superName, TypeName parameterName, Map<String, ExecutableElement> properties) {
+    private static MethodSpec generateGroupFieldsEqual(Name superName, TypeName parameterName, Map<String, ExecutableElement> properties) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("groupFieldsEqual")
+                .addModifiers(Modifier.PRIVATE) //
+                .returns(TypeName.BOOLEAN)
+                .addParameter(parameterName, "other")
+                .addParameter(String.class, "group");
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("variantOf") //
+        Map<String, List<ExecutableElement>> groups = getGroupedProperties(properties);
+
+        if(groups.size() == 0){
+            builder.addCode("return true;\n");
+            return builder.build();
+        }
+
+        boolean firstIfBranch = true;
+        boolean firstProperty;
+        for (Map.Entry<String, List<ExecutableElement>> group : groups.entrySet()) {
+            builder.addCode(firstIfBranch ? "if(" : "else if(");
+            builder.addCode("group.equals(\"$L\")){\n", group.getKey());
+            builder.addCode("   return ");
+
+            firstProperty = true;
+            for (ExecutableElement property : group.getValue()) {
+                if (!firstProperty) {
+                    builder.addCode("\n      && ");
+                }
+                builder.addCode(generateEqualsExpression(property));
+                firstProperty = false;
+            }
+
+            builder.addCode(";\n");
+            builder.addCode("}");
+
+            firstIfBranch = false;
+        }
+
+        builder.addCode("else{\n   throw new RuntimeException(\"no properties for group: \" + group);\n}\n");
+
+        return builder.build();
+    }
+
+    private static MethodSpec generateVariantOf(Name superName, TypeName parameterName, Map<String, ExecutableElement> properties) {
+        return MethodSpec.methodBuilder("variantOf") //
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL) //
                 .returns(TypeName.BOOLEAN)
-                .addParameter(parameterName, "that")
-                .addCode("if (this == that) return false;\n");
+                .addParameter(parameterName, "other")
+                .addCode("return variantOf(other, \"\");\n")
+                .build();
+    }
 
-        List<ExecutableElement> constantProperties = new ArrayList<>();
+    private static MethodSpec generateVariantOfInGroup(Name superName, TypeName parameterName, Map<String, ExecutableElement> properties) {
+        return MethodSpec.methodBuilder("variantOf") //
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL) //
+                .returns(TypeName.BOOLEAN)
+                .addParameter(parameterName, "other")
+                .addParameter(String.class, "group")
+                .addCode("return group != null && other != null && groupFieldsEqual(other, group) && !equals(other);\n")
+                .build();
+    }
 
-        for (ExecutableElement property : properties.values()) {
-            if (getAnnotations(property).contains("Constant")) {
-                constantProperties.add(property);
+    private static MethodSpec generateVariantOrEqual(Name superName, TypeName parameterName, Map<String, ExecutableElement> properties) {
+        return MethodSpec.methodBuilder("variantOrEqual") //
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL) //
+                .returns(TypeName.BOOLEAN)
+                .addParameter(parameterName, "other")
+                .addCode("return other != null && (other == this || groupFieldsEqual(other, \"\"));\n")
+                .build();
+    }
+
+    private static MethodSpec generateVariantOrEqualInGroup(Name superName, TypeName parameterName, Map<String, ExecutableElement> properties) {
+        return MethodSpec.methodBuilder("variantOrEqual") //
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL) //
+                .returns(TypeName.BOOLEAN)
+                .addParameter(parameterName, "other")
+                .addParameter(String.class, "group")
+                .addCode("return group != null && other != null && (other == this || groupFieldsEqual(other, group));\n")
+                .build();
+    }
+
+
+    private static Map<String, List<ExecutableElement>> getGroupedProperties(Map<String, ExecutableElement> propertyElements) {
+        Map<String, List<ExecutableElement>> groups = new HashMap<>();
+        for (ExecutableElement propertyElement : propertyElements.values()) {
+            NonVariant nonVariant = propertyElement.getAnnotation(NonVariant.class);
+            if (nonVariant != null) {
+                for (String groupName : nonVariant.value()) {
+                    if (!groups.containsKey(groupName)) {
+                        groups.put(groupName, new ArrayList<ExecutableElement>());
+                    }
+                    groups.get(groupName).add(propertyElement);
+                }
             }
         }
-
-        if (constantProperties.size() > 0) {
-            builder.addCode("if(!(true");
-            for (ExecutableElement property : constantProperties) {
-                builder.addCode("\n      && ");
-                builder.addCode(generateEqualsExpression(property));
-            }
-            builder
-                    .addCode(")){\n")
-                    .addCode("  return false;\n")
-                    .addCode("}\n");
-        }
-
-        builder.addCode("return !this.equals(that);\n");
-
-        return builder.build();
+        return groups;
     }
 
     private static CodeBlock generateEqualsExpression(ExecutableElement propertyElement) {
@@ -136,24 +203,24 @@ public class AutoValueVariantExtension extends AutoValueExtension {
         boolean nullable = propertyAnnotations.contains("Nullable");
 
         if (propertyType.equals(TypeName.FLOAT)) {
-            return CodeBlock.of("(Float.floatToIntBits(this.$N()) == Float.floatToIntBits(that.$N()))",
+            return CodeBlock.of("(Float.floatToIntBits(this.$N()) == Float.floatToIntBits(other.$N()))",
                     methodName, methodName);
         } else if (propertyType.equals(TypeName.DOUBLE)) {
             return CodeBlock.of(
-                    "(Double.doubleToLongBits(this.$N()) == Double.doubleToLongBits(that.$N()))", methodName,
+                    "(Double.doubleToLongBits(this.$N()) == Double.doubleToLongBits(other.$N()))", methodName,
                     methodName);
         } else if (propertyType.isPrimitive()) {
-            return CodeBlock.of("(this.$N() == that.$N())", methodName, methodName);
+            return CodeBlock.of("(this.$N() == other.$N())", methodName, methodName);
         } else if (propertyType instanceof ArrayTypeName) {
-            return CodeBlock.of("($T.equals(this.$N(), that.$N()))", Arrays.class, methodName,
+            return CodeBlock.of("($T.equals(this.$N(), other.$N()))", Arrays.class, methodName,
                     methodName);
         } else {
             if (nullable) {
                 return CodeBlock.of(
-                        "((this.$N() == null) ? (that.$N() == null) : this.$N().equals(that.$N()))", methodName,
+                        "((this.$N() == null) ? (other.$N() == null) : this.$N().equals(other.$N()))", methodName,
                         methodName, methodName, methodName);
             } else {
-                return CodeBlock.of("(this.$N().equals(that.$N()))", methodName, methodName);
+                return CodeBlock.of("(this.$N().equals(other.$N()))", methodName, methodName);
             }
         }
     }
@@ -171,9 +238,9 @@ public class AutoValueVariantExtension extends AutoValueExtension {
 
     private TypeMirror getInterfaceType(String type, Context context) {
         List<? extends TypeMirror> interfaces = context.autoValueClass().getInterfaces();
+
         System.out.println(Variant.class.getCanonicalName());
         for (TypeMirror anInterface : interfaces) {
-            System.out.println(anInterface.toString());
             if (anInterface.toString().startsWith(type)) {
                 return anInterface;
             }
