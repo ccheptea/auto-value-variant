@@ -20,7 +20,6 @@ import com.google.testing.compile.JavaFileObjects;
 
 import java.io.FileNotFoundException;
 import java.util.Arrays;
-import java.util.Collection;
 import javax.tools.JavaFileObject;
 
 import org.junit.Test;
@@ -30,16 +29,51 @@ import static com.google.testing.compile.JavaSourcesSubjectFactory.javaSources;
 
 public class AutoValueVariantExtensionTest {
 
-
     @Test
-    public void simple() throws FileNotFoundException {
-        JavaFileObject car = JavaFileObjects.forResource("input/Model.java");
-        JavaFileObject autoCar = JavaFileObjects.forResource("expected/Model.java");
+    public void testDefaultGroup() throws FileNotFoundException {
+        JavaFileObject model = JavaFileObjects.forResource("input/ModelDefaultGroup.java");
+        JavaFileObject autoModel = JavaFileObjects.forResource("expected/ModelDefaultGroup.java");
         assertAbout(javaSources())
-                .that(Arrays.asList(car))
+                .that(Arrays.asList(model))
                 .processedWith(new AutoValueProcessor())
                 .compilesWithoutError()
                 .and()
-                .generatesSources(autoCar);
+                .generatesSources(autoModel);
+    }
+
+    @Test
+    public void testNoGroup() throws FileNotFoundException {
+        JavaFileObject model = JavaFileObjects.forResource("input/ModelNoGroup.java");
+        JavaFileObject autoModel = JavaFileObjects.forResource("expected/ModelNoGroup.java");
+        assertAbout(javaSources())
+                .that(Arrays.asList(model))
+                .processedWith(new AutoValueProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(autoModel);
+    }
+
+    @Test
+    public void testDummyGroup() throws FileNotFoundException {
+        JavaFileObject model = JavaFileObjects.forResource("input/ModelDummyGroup.java");
+        JavaFileObject autoModel = JavaFileObjects.forResource("expected/ModelDummyGroup.java");
+        assertAbout(javaSources())
+                .that(Arrays.asList(model))
+                .processedWith(new AutoValueProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(autoModel);
+    }
+
+    @Test
+    public void testDummyAndSillyGroup() throws FileNotFoundException {
+        JavaFileObject model = JavaFileObjects.forResource("input/ModelDummyAndSillyGroup.java");
+        JavaFileObject autoModel = JavaFileObjects.forResource("expected/ModelDummyAndSillyGroup.java");
+        assertAbout(javaSources())
+                .that(Arrays.asList(model))
+                .processedWith(new AutoValueProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(autoModel);
     }
 }

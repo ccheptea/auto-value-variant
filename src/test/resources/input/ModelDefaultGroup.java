@@ -5,7 +5,7 @@ import com.ccheptea.auto.value.variant.NonVariant;
 import com.google.auto.value.AutoValue;
 
 @AutoValue
-public abstract class Model implements Variant<Model> {
+public abstract class ModelDefaultGroup implements Variant<ModelDefaultGroup> {
     @NonVariant
     public abstract String a();
 
@@ -13,5 +13,6 @@ public abstract class Model implements Variant<Model> {
     public abstract String b();
 
     public abstract String c();
+
     public abstract boolean d();
 }

@@ -29,9 +29,7 @@ public class AutoValueVariantExtension extends AutoValueExtension {
 
     @Override
     public boolean applicable(Context context) {
-        boolean found = getInterfaceType(variantInterface, context) != null;
-        System.out.println("Found one!");
-        return found;
+        return getInterfaceType(variantInterface, context) != null;
     }
 
     @Override
@@ -104,7 +102,7 @@ public class AutoValueVariantExtension extends AutoValueExtension {
 
         Map<String, List<ExecutableElement>> groups = getGroupedProperties(properties);
 
-        if(groups.size() == 0){
+        if (groups.size() == 0) {
             builder.addCode("return true;\n");
             return builder.build();
         }
@@ -227,7 +225,6 @@ public class AutoValueVariantExtension extends AutoValueExtension {
 
     private static Set<String> getAnnotations(ExecutableElement element) {
         Set<String> set = new LinkedHashSet<>();
-
         List<? extends AnnotationMirror> annotations = element.getAnnotationMirrors();
         for (AnnotationMirror annotation : annotations) {
             set.add(annotation.getAnnotationType().asElement().getSimpleName().toString());
@@ -238,8 +235,6 @@ public class AutoValueVariantExtension extends AutoValueExtension {
 
     private TypeMirror getInterfaceType(String type, Context context) {
         List<? extends TypeMirror> interfaces = context.autoValueClass().getInterfaces();
-
-        System.out.println(Variant.class.getCanonicalName());
         for (TypeMirror anInterface : interfaces) {
             if (anInterface.toString().startsWith(type)) {
                 return anInterface;
