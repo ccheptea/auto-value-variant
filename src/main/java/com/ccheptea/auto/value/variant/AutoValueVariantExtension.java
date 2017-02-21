@@ -40,24 +40,27 @@ public class AutoValueVariantExtension extends AutoValueExtension {
     @Override
     public String generateClass(Context context, String className, String classToExtend, boolean isFinal) {
         String packageName = context.packageName();
-        Name superName = context.autoValueClass().getSimpleName();
-        Name superQualifiedName = context.autoValueClass().getQualifiedName();
+        String superQualifiedName = context.autoValueClass().getQualifiedName().toString();
         Map<String, ExecutableElement> properties = context.properties();
         TypeName parametrizedType = getParametrizedType(context);
 
-        if (parametrizedType == null || !superQualifiedName.toString().equals(parametrizedType.toString())) {
+        if (parametrizedType == null) {
             throw new RuntimeException("Missing Parametrized Type " + superQualifiedName);
+        } else if (!superQualifiedName.equals(parametrizedType.toString())) {
+            throw new RuntimeException("Parametrized Type must be same as AutoValue class: "
+                    + superQualifiedName
+                    + ". Found " + parametrizedType + " instead.");
         }
 
         TypeSpec subclass = TypeSpec.classBuilder(className)
                 .addModifiers(isFinal ? Modifier.FINAL : Modifier.ABSTRACT)
                 .superclass(ClassName.get(packageName, classToExtend))
                 .addMethod(generateConstructor(properties))
-                .addMethod(generateVariantOf(superName, parametrizedType, properties))
-                .addMethod(generateVariantOfInGroup(superName, parametrizedType, properties))
-                .addMethod(generateVariantOrEqual(superName, parametrizedType, properties))
-                .addMethod(generateVariantOrEqualInGroup(superName, parametrizedType, properties))
-                .addMethod(generateGroupFieldsEqual(superName, parametrizedType, properties))
+                .addMethod(generateVariantOf(parametrizedType))
+                .addMethod(generateVariantOfInGroup(parametrizedType))
+                .addMethod(generateVariantOrEqual(parametrizedType))
+                .addMethod(generateVariantOrEqualInGroup(parametrizedType))
+                .addMethod(generateGroupFieldsEqual(parametrizedType, properties))
                 .build();
 
         JavaFile javaFile = JavaFile.builder(packageName, subclass).build();
@@ -70,7 +73,12 @@ public class AutoValueVariantExtension extends AutoValueExtension {
         if (interfaceType == null) {
             return null;
         }
-        return ((ParameterizedTypeName) ParameterizedTypeName.get(interfaceType)).typeArguments.get(0);
+        try {
+            ParameterizedTypeName parameterizedTypeName = ((ParameterizedTypeName) ParameterizedTypeName.get(interfaceType));
+            return parameterizedTypeName.typeArguments.get(0);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static MethodSpec generateConstructor(Map<String, ExecutableElement> properties) {
@@ -93,7 +101,7 @@ public class AutoValueVariantExtension extends AutoValueExtension {
                 .build();
     }
 
-    private static MethodSpec generateGroupFieldsEqual(Name superName, TypeName parameterName, Map<String, ExecutableElement> properties) {
+    private static MethodSpec generateGroupFieldsEqual(TypeName parameterName, Map<String, ExecutableElement> properties) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("groupFieldsEqual")
                 .addModifiers(Modifier.PRIVATE) //
                 .returns(TypeName.BOOLEAN)
@@ -134,7 +142,7 @@ public class AutoValueVariantExtension extends AutoValueExtension {
         return builder.build();
     }
 
-    private static MethodSpec generateVariantOf(Name superName, TypeName parameterName, Map<String, ExecutableElement> properties) {
+    private static MethodSpec generateVariantOf(TypeName parameterName) {
         return MethodSpec.methodBuilder("variantOf") //
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL) //
@@ -144,7 +152,7 @@ public class AutoValueVariantExtension extends AutoValueExtension {
                 .build();
     }
 
-    private static MethodSpec generateVariantOfInGroup(Name superName, TypeName parameterName, Map<String, ExecutableElement> properties) {
+    private static MethodSpec generateVariantOfInGroup(TypeName parameterName) {
         return MethodSpec.methodBuilder("variantOf") //
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL) //
@@ -155,7 +163,7 @@ public class AutoValueVariantExtension extends AutoValueExtension {
                 .build();
     }
 
-    private static MethodSpec generateVariantOrEqual(Name superName, TypeName parameterName, Map<String, ExecutableElement> properties) {
+    private static MethodSpec generateVariantOrEqual(TypeName parameterName) {
         return MethodSpec.methodBuilder("variantOrEqual") //
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL) //
@@ -165,7 +173,7 @@ public class AutoValueVariantExtension extends AutoValueExtension {
                 .build();
     }
 
-    private static MethodSpec generateVariantOrEqualInGroup(Name superName, TypeName parameterName, Map<String, ExecutableElement> properties) {
+    private static MethodSpec generateVariantOrEqualInGroup(TypeName parameterName) {
         return MethodSpec.methodBuilder("variantOrEqual") //
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL) //
@@ -175,7 +183,6 @@ public class AutoValueVariantExtension extends AutoValueExtension {
                 .addCode("return group != null && other != null && (other == this || groupFieldsEqual(other, group));\n")
                 .build();
     }
-
 
     private static Map<String, List<ExecutableElement>> getGroupedProperties(Map<String, ExecutableElement> propertyElements) {
         Map<String, List<ExecutableElement>> groups = new HashMap<>();
