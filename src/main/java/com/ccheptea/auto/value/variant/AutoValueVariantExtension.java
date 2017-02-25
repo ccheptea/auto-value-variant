@@ -17,6 +17,7 @@ package com.ccheptea.auto.value.variant;
 
 import com.google.auto.service.AutoService;
 import com.google.auto.value.extension.AutoValueExtension;
+import com.google.common.collect.ImmutableSet;
 import com.squareup.javapoet.*;
 
 import java.util.*;
@@ -35,6 +36,22 @@ public class AutoValueVariantExtension extends AutoValueExtension {
     @Override
     public boolean mustBeFinal(Context context) {
         return false;
+    }
+
+    @Override
+    public Set<ExecutableElement> consumeMethods(Context context) {
+        ImmutableSet.Builder<ExecutableElement> methods = new ImmutableSet.Builder<>();
+        for (ExecutableElement element : context.abstractMethods()) {
+            switch (element.getSimpleName().toString()) {
+                case "variantOf":
+                    methods.add(element);
+                    break;
+                case "variantOrEqual":
+                    methods.add(element);
+                    break;
+            }
+        }
+        return methods.build();
     }
 
     @Override
