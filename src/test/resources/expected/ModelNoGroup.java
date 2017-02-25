@@ -15,17 +15,24 @@ final class AutoValue_ModelNoGroup extends $AutoValue_ModelNoGroup {
 
     @Override
     public final boolean variantOf(ModelNoGroup other, String group) {
-        return group != null && other != null && groupFieldsEqual(other, group) && !equals(other);
+        return group != null
+                && other != null
+                && other instanceof ModelNoGroup
+                && groupFieldsEqual((ModelNoGroup) other, group)
+                && !equals(other);
     }
 
     @Override
     public final boolean variantOrEqual(ModelNoGroup other) {
-        return other != null && (other == this || groupFieldsEqual(other, ""));
+        return variantOrEqual(other, "");
     }
 
     @Override
     public final boolean variantOrEqual(ModelNoGroup other, String group) {
-        return group != null && other != null && (other == this || groupFieldsEqual(other, group));
+        return group != null
+                && other != null
+                && other instanceof ModelNoGroup
+                && (other == this || groupFieldsEqual((ModelNoGroup) other, group));
     }
 
     private boolean groupFieldsEqual(ModelNoGroup other, String group) {

@@ -15,17 +15,24 @@ final class AutoValue_ModelDummyAndSillyGroup extends $AutoValue_ModelDummyAndSi
 
     @Override
     public final boolean variantOf(ModelDummyAndSillyGroup other, String group) {
-        return group != null && other != null && groupFieldsEqual(other, group) && !equals(other);
+        return group != null
+                && other != null
+                && other instanceof ModelDummyAndSillyGroup
+                && groupFieldsEqual((ModelDummyAndSillyGroup) other, group)
+                && !equals(other);
     }
 
     @Override
     public final boolean variantOrEqual(ModelDummyAndSillyGroup other) {
-        return other != null && (other == this || groupFieldsEqual(other, ""));
+        return variantOrEqual(other, "");
     }
 
     @Override
     public final boolean variantOrEqual(ModelDummyAndSillyGroup other, String group) {
-        return group != null && other != null && (other == this || groupFieldsEqual(other, group));
+        return group != null
+                && other != null
+                && other instanceof ModelDummyAndSillyGroup
+                && (other == this || groupFieldsEqual((ModelDummyAndSillyGroup) other, group));
     }
 
     private boolean groupFieldsEqual(ModelDummyAndSillyGroup other, String group) {

@@ -5,7 +5,7 @@ import com.ccheptea.auto.value.variant.NonVariant;
 import com.google.auto.value.AutoValue;
 
 @AutoValue
-public abstract class ModelDummyGroup implements Variant<ModelDummyGroup> {
+public abstract class ModelDummyGroup implements Variant {
     @NonVariant("Dummy")
     public abstract String a();
 

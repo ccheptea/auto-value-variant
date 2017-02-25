@@ -40,27 +40,20 @@ public class AutoValueVariantExtension extends AutoValueExtension {
     @Override
     public String generateClass(Context context, String className, String classToExtend, boolean isFinal) {
         String packageName = context.packageName();
-        String superQualifiedName = context.autoValueClass().getQualifiedName().toString();
+        Name superName = context.autoValueClass().getSimpleName();
         Map<String, ExecutableElement> properties = context.properties();
         TypeName parametrizedType = getParametrizedType(context);
 
-        if (parametrizedType == null) {
-            throw new RuntimeException("Missing Parametrized Type " + superQualifiedName);
-        } else if (!superQualifiedName.equals(parametrizedType.toString())) {
-            throw new RuntimeException("Parametrized Type must be same as AutoValue class: "
-                    + superQualifiedName
-                    + ". Found " + parametrizedType + " instead.");
-        }
-
+        TypeName variantName = parametrizedType == null ? TypeName.get(Object.class) : parametrizedType;
         TypeSpec subclass = TypeSpec.classBuilder(className)
                 .addModifiers(isFinal ? Modifier.FINAL : Modifier.ABSTRACT)
                 .superclass(ClassName.get(packageName, classToExtend))
                 .addMethod(generateConstructor(properties))
-                .addMethod(generateVariantOf(parametrizedType))
-                .addMethod(generateVariantOfInGroup(parametrizedType))
-                .addMethod(generateVariantOrEqual(parametrizedType))
-                .addMethod(generateVariantOrEqualInGroup(parametrizedType))
-                .addMethod(generateGroupFieldsEqual(parametrizedType, properties))
+                .addMethod(generateVariantOf(superName, variantName))
+                .addMethod(generateVariantOfInGroup(superName, variantName))
+                .addMethod(generateVariantOrEqual(superName, variantName))
+                .addMethod(generateVariantOrEqualInGroup(superName, variantName))
+                .addMethod(generateGroupFieldsEqual(TypeName.get(context.autoValueClass().asType()), properties))
                 .build();
 
         JavaFile javaFile = JavaFile.builder(packageName, subclass).build();
@@ -101,11 +94,11 @@ public class AutoValueVariantExtension extends AutoValueExtension {
                 .build();
     }
 
-    private static MethodSpec generateGroupFieldsEqual(TypeName parameterName, Map<String, ExecutableElement> properties) {
+    private static MethodSpec generateGroupFieldsEqual(TypeName superName, Map<String, ExecutableElement> properties) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("groupFieldsEqual")
                 .addModifiers(Modifier.PRIVATE) //
                 .returns(TypeName.BOOLEAN)
-                .addParameter(parameterName, "other")
+                .addParameter(superName, "other")
                 .addParameter(String.class, "group");
 
         Map<String, List<ExecutableElement>> groups = getGroupedProperties(properties);
@@ -142,7 +135,7 @@ public class AutoValueVariantExtension extends AutoValueExtension {
         return builder.build();
     }
 
-    private static MethodSpec generateVariantOf(TypeName parameterName) {
+    private static MethodSpec generateVariantOf(Name superName, TypeName parameterName) {
         return MethodSpec.methodBuilder("variantOf") //
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL) //
@@ -152,35 +145,41 @@ public class AutoValueVariantExtension extends AutoValueExtension {
                 .build();
     }
 
-    private static MethodSpec generateVariantOfInGroup(TypeName parameterName) {
+    private static MethodSpec generateVariantOfInGroup(Name superName, TypeName parameterName) {
         return MethodSpec.methodBuilder("variantOf") //
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL) //
                 .returns(TypeName.BOOLEAN)
                 .addParameter(parameterName, "other")
                 .addParameter(String.class, "group")
-                .addCode("return group != null && other != null && groupFieldsEqual(other, group) && !equals(other);\n")
+                .addCode("return group != null ")
+                .addCode("\n  && other != null")
+                .addCode("\n  && other instanceof $L", superName)
+                .addCode("\n  && groupFieldsEqual(($L) other, group) && !equals(other);\n", superName)
                 .build();
     }
 
-    private static MethodSpec generateVariantOrEqual(TypeName parameterName) {
+    private static MethodSpec generateVariantOrEqual(Name superName, TypeName parameterName) {
         return MethodSpec.methodBuilder("variantOrEqual") //
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL) //
                 .returns(TypeName.BOOLEAN)
                 .addParameter(parameterName, "other")
-                .addCode("return other != null && (other == this || groupFieldsEqual(other, \"\"));\n")
+                .addCode("return variantOrEqual(other, \"\");\n")
                 .build();
     }
 
-    private static MethodSpec generateVariantOrEqualInGroup(TypeName parameterName) {
+    private static MethodSpec generateVariantOrEqualInGroup(Name superName, TypeName parameterName) {
         return MethodSpec.methodBuilder("variantOrEqual") //
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL) //
                 .returns(TypeName.BOOLEAN)
                 .addParameter(parameterName, "other")
                 .addParameter(String.class, "group")
-                .addCode("return group != null && other != null && (other == this || groupFieldsEqual(other, group));\n")
+                .addCode("return group != null ")
+                .addCode("\n  && other != null")
+                .addCode("\n  && other instanceof $L", superName)
+                .addCode("\n  && (other == this || groupFieldsEqual(($L) other, group));", superName)
                 .build();
     }
 

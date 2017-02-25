@@ -1,5 +1,6 @@
 package input;
 
+import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
 
@@ -9,23 +10,30 @@ final class AutoValue_ModelDummyGroup extends $AutoValue_ModelDummyGroup {
     }
 
     @Override
-    public final boolean variantOf(ModelDummyGroup other) {
+    public final boolean variantOf(Object other) {
         return variantOf(other, "");
     }
 
     @Override
-    public final boolean variantOf(ModelDummyGroup other, String group) {
-        return group != null && other != null && groupFieldsEqual(other, group) && !equals(other);
+    public final boolean variantOf(Object other, String group) {
+        return group != null
+                && other != null
+                && other instanceof ModelDummyGroup
+                && groupFieldsEqual((ModelDummyGroup) other, group)
+                && !equals(other);
     }
 
     @Override
-    public final boolean variantOrEqual(ModelDummyGroup other) {
-        return other != null && (other == this || groupFieldsEqual(other, ""));
+    public final boolean variantOrEqual(Object other) {
+        return variantOrEqual(other, "");
     }
 
     @Override
-    public final boolean variantOrEqual(ModelDummyGroup other, String group) {
-        return group != null && other != null && (other == this || groupFieldsEqual(other, group));
+    public final boolean variantOrEqual(Object other, String group) {
+        return group != null
+                && other != null
+                && other instanceof ModelDummyGroup
+                && (other == this || groupFieldsEqual((ModelDummyGroup) other, group));
     }
 
     private boolean groupFieldsEqual(ModelDummyGroup other, String group) {

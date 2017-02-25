@@ -15,17 +15,24 @@ final class AutoValue_ModelDefaultGroup extends $AutoValue_ModelDefaultGroup {
 
     @Override
     public final boolean variantOf(ModelDefaultGroup other, String group) {
-        return group != null && other != null && groupFieldsEqual(other, group) && !equals(other);
+        return group != null
+                && other != null
+                && other instanceof ModelDefaultGroup
+                && groupFieldsEqual((ModelDefaultGroup)other, group)
+                && !equals(other);
     }
 
     @Override
     public final boolean variantOrEqual(ModelDefaultGroup other) {
-        return other != null && (other == this || groupFieldsEqual(other, ""));
+        return variantOrEqual(other, "");
     }
 
     @Override
     public final boolean variantOrEqual(ModelDefaultGroup other, String group) {
-        return group != null && other != null && (other == this || groupFieldsEqual(other, group));
+        return group != null
+                && other != null
+                && other instanceof ModelDefaultGroup
+                && (other == this || groupFieldsEqual((ModelDefaultGroup) other, group));
     }
 
     private boolean groupFieldsEqual(ModelDefaultGroup other, String group) {
