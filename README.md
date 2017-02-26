@@ -9,7 +9,7 @@ Consider the the following class:
 @AutoValue abstract class Car{
     abstract String manufacturer();
     abstract String model();
-    abstract String plateNumber;
+    abstract String plateNumber();
     abstract int color();
     public abstract String body();
 }
@@ -18,7 +18,7 @@ Consider the the following class:
 Having a list of cars and a reference car, lets filter all the cars that have the manufacturer and model fields 
 equal to the ones defined in our reference. Most probably we'll end up with some code similar to this:
 ```java
-Car ref = new AutoValue_Car("Tesla", "Model S", "" 0, "");
+Car ref = new AutoValue_Car("Tesla", "Model S", "", 0, "");
 for(Car car : cars){
     boolean match = (ref.manufacturer() == null ? car.manufacturer() == null : ref.manufacturer().equals(car.manufacturer()))
         && (ref.model() == null ? car.model() == null : ref.model().equals(car.model()))
@@ -28,8 +28,7 @@ for(Car car : cars){
     }
 }
 ```
-This code is hard to read and maintain and can get worse if filters get more complex. Thus we need a better way to 
-handle this.
+This code is hard to read and maintain and can get worse if filters get more complex.
 
 ## Variant definition
 
@@ -41,7 +40,7 @@ Lets call an object **A** _variant_ of object **B** _iff_ the followings apply:
 
 * **A** and **B** are of the same type
 * **A** and **B** have a set **F** of fields that are considered constant
-* **A**'s **F** values equal to **B**'s **F** values
+* Each property from **F(A)** equals to its corresponding property in **F(B)**
 * ``A.equals(B)`` returns ``false``
  
 ## Usage
@@ -56,13 +55,13 @@ Lets apply them to our example above.
 @AutoValue abstract class Car implements Variant{
     @NonVariant abstract String manufacturer();
     @NonVariant abstract String model();
-    abstract String plateNumber;
+    abstract String plateNumber();
     abstract int color();
     abstract String body();
 }
 ```
 
-Then filtering will like like this:
+Then filtering will like this:
 ```java
 for(Car car : cars){
     if(ref.variantOf(car)){
@@ -112,8 +111,8 @@ blackSedans = cars.stream().filter(car -> ref.variantOf(car, Car.VariantGroups.A
 ## Download
 
 ```groovy
-compile 'com.squareup.auto.value:auto-value-variant:1.0.1-SNAPSHOT'
-```
+compile 'com.ccheptea.auto.value:auto-value-variant:1.0.1-SNAPSHOT'
+ ```
 
 Snapshots of the development version are available in [Sonatype's `snapshots` repository][snap].
 
@@ -121,7 +120,7 @@ Snapshots of the development version are available in [Sonatype's `snapshots` re
 
 
 ```
-Copyright 2016 Gabriel Ittner.
+Copyright 2017 Constantin Cheptea.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
