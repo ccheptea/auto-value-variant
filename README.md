@@ -1,4 +1,4 @@
-# AutoValue: Variant
+# AutoValue: Variant Extension [![Build Status](https://travis-ci.org/ccheptea/auto-value-variant.svg?branch=master)](https://travis-ci.org/ccheptea/auto-value-variant)
 
 An extension for Google's [AutoValue](https://github.com/google/auto/tree/master/value) 
 that generates a few handy methods to determine object variations based on statically defined variance groups.
@@ -115,6 +115,13 @@ compile 'com.ccheptea.auto.value:auto-value-variant:1.0.1-SNAPSHOT'
  ```
 
 Snapshots of the development version are available in [Sonatype's `snapshots` repository][snap].
+
+
+## Notes
+
+The code for auto deploying artifacts with Travis as well as some of the extension code is based on or inspired by parts of:
+* [AutoValue: Redacted Extension] (https://github.com/square/auto-value-redacted)
+* [AutoValue: Parcel Extension] (https://github.com/rharter/auto-value-parcel)
 
 ## License
 
