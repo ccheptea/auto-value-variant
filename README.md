@@ -33,7 +33,7 @@ This code is hard to read and maintain and can get worse if filters get more com
 ## Variant definition
 
 #### Short 
-Two object are _variants_ if they are of the same type, they are not equal, except for a set of their properties.
+Two objects are _variants_ if they are of the same type and are not equal except for a set of their properties.
 
 #### Long
 Lets call an object **A** _variant_ of object **B** _iff_ the followings apply:
