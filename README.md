@@ -11,7 +11,7 @@ Consider the the following class:
     abstract String model();
     abstract String plateNumber();
     abstract int color();
-    public abstract String body();
+    abstract String body();
 }
 ```
 
@@ -68,34 +68,32 @@ for(Car car : cars){
         filtered.add(car);
     }
 }
-
-// or lambda
-
+// or 
 filtered = cars.stream().filter(car -> ref.variantOf(car));
 ```
 
 ## Multiple variant groups
 ```java
-public abstract class CarMultipleGroups implements Variant<CarMultipleGroups> {
+public abstract class Car implements Variant<Car> {
 
     @NonVariant(VariantGroups.IDENTITY)
-    public abstract String manufacturer();
+    abstract String manufacturer();
 
     @NonVariant({VariantGroups.IDENTITY, VariantGroups.MODEL_AND_BODY})
-    public abstract String model();
+    abstract String model();
 
-    public abstract String plateNumber();
+    abstract String plateNumber();
 
     @NonVariant(VariantGroups.ASPECT)
-    public abstract int color();
+    abstract int color();
 
     @NonVariant({VariantGroups.ASPECT, VariantGroups.MODEL_AND_BODY})
-    public abstract String body();
+    abstract String body();
 
-    public static class VariantGroups {
-        public static final String IDENTITY = "identity";
-        public static final String ASPECT = "aspect";
-        public static final String MODEL_AND_BODY = "model_and_body";
+    static class VariantGroups {
+        static final String IDENTITY = "identity";
+        static final String ASPECT = "aspect";
+        static final String MODEL_AND_BODY = "model_and_body";
     }
 }
 ```
