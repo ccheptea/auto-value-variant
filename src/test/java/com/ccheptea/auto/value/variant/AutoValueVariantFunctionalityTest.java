@@ -33,6 +33,7 @@ public class AutoValueVariantFunctionalityTest {
         carsWithMultipleGroups.add(createCarMultipleGroups("KIA", "Sorento", "PLATE5", 555, "SUV"));
         carsWithMultipleGroups.add(createCarMultipleGroups("Nissan", "Pathfinder", "PLATE6", 555, "SUV"));
         carsWithMultipleGroups.add(createCarMultipleGroups("Tesla", "Model X", "PLATE6", 555, "Sedan"));
+        carsWithMultipleGroups.add(createCarMultipleGroups("Tesla", null, "PLATE6", 999, "Sedan"));
 
         carsWithNoGroup.add(createCarNoGroup("Tesla", "Model S", "PLATE1", 555, "Sedan"));
         carsWithNoGroup.add(createCarNoGroup("Tesla", "Model S", "PLATE2", 777, "Pickup"));
@@ -43,21 +44,34 @@ public class AutoValueVariantFunctionalityTest {
     }
 
     @Test
+    public void testWithNullProperty() {
+        CarMultipleGroups car1 = createCarMultipleGroups("Tesla", "Model S", "", 0, "");
+        CarMultipleGroups car2 = createCarMultipleGroups("Tesla", null, "", 0, "");
+
+        assert !car1.variantOf(car2, CarMultipleGroups.VariantGroups.IDENTITY);
+    }
+
+    @Test
     public void testMultipleGroups() {
         CarMultipleGroups refIdentity = createCarMultipleGroups("Tesla", "Model S", "", 0, "");
+        CarMultipleGroups refIdentity2 = createCarMultipleGroups("Tesla", null, "", 0, "");
         CarMultipleGroups refModelBody = createCarMultipleGroups("", "Model X", "", 0, "Hatchback");
         CarMultipleGroups refAspect = createCarMultipleGroups("", "", "", 555, "Sedan");
 
         List<CarMultipleGroups> identityVariants = new ArrayList<>();
+        List<CarMultipleGroups> identity2Variants = new ArrayList<>();
         List<CarMultipleGroups> modelBodyVariants = new ArrayList<>();
         List<CarMultipleGroups> aspectVariants = new ArrayList<>();
 
         List<CarMultipleGroups> expectedIdentityVariants = new ArrayList<>();
+        List<CarMultipleGroups> expectedIdentity2Variants = new ArrayList<>();
         List<CarMultipleGroups> expectedModelBodyVariants = new ArrayList<>();
         List<CarMultipleGroups> expectedAspectVariants = new ArrayList<>();
 
         expectedIdentityVariants.add(carsWithMultipleGroups.get(0));
         expectedIdentityVariants.add(carsWithMultipleGroups.get(1));
+
+        expectedIdentity2Variants.add(carsWithMultipleGroups.get(7));
 
         expectedModelBodyVariants.add(carsWithMultipleGroups.get(2));
         expectedModelBodyVariants.add(carsWithMultipleGroups.get(3));
@@ -70,6 +84,10 @@ public class AutoValueVariantFunctionalityTest {
                 identityVariants.add(car);
             }
 
+            if (refIdentity2.variantOf(car, CarMultipleGroups.VariantGroups.IDENTITY)) {
+                identity2Variants.add(car);
+            }
+
             if (refModelBody.variantOf(car, CarMultipleGroups.VariantGroups.MODEL_AND_BODY)) {
                 modelBodyVariants.add(car);
             }
@@ -80,6 +98,7 @@ public class AutoValueVariantFunctionalityTest {
         }
 
         assert identityVariants.equals(expectedIdentityVariants);
+        assert identity2Variants.equals(expectedIdentity2Variants);
         assert modelBodyVariants.equals(expectedModelBodyVariants);
         assert aspectVariants.equals(expectedAspectVariants);
     }
