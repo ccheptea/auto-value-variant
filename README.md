@@ -50,7 +50,7 @@ AutoValue Variant has two key elements:
 * ``Variant`` interface, containing the methods for determining variants
 * ``@NonVariant`` annotation, applied to fields that we want to consider constant
 
-Lets apply them to our example above.
+Implement ``Variant``, then apply the ``@NonVariant`` annotation on fields you want to consider constant. 
 ```java
 @AutoValue abstract class Car implements Variant{
     @NonVariant abstract String manufacturer();
@@ -73,6 +73,8 @@ filtered = cars.stream().filter(car -> ref.variantOf(car));
 ```
 
 ## Multiple variant groups
+You can define multiple variant groups by specifying the group name when applying the ``@NonVariant`` annotation
+
 ```java
 public abstract class Car implements Variant<Car> {
 

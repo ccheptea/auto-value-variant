@@ -11,7 +11,7 @@ after_success:
   - .buildscript/deploy-snapshot.sh
 
 notifications:
-  email: true
+  email: false
 
 env:
   global:
