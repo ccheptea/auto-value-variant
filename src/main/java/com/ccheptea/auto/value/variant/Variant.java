@@ -16,11 +16,38 @@
 package com.ccheptea.auto.value.variant;
 
 public interface Variant<T> {
+
+    /**
+     * Verifies if objects are SIMILAR but NOT EQUAL in the default group "".
+     *
+     * @param other object to compare with <b>this</b>
+     * @return true if similar but not equal; false otherwise
+     */
     boolean like(T other);
 
+    /**
+     * Verifies if objects are SIMILAR but NOT EQUAL in the in the specified group.
+     *
+     * @param other object to compare with <b>this</b>
+     * @param group in which the comparison is relevant
+     * @return true if similar but not equal; false otherwise
+     */
     boolean like(T other, String group);
 
+    /**
+     * Verifies if objects are SIMILAR OR EQUAL in the default group "".
+     *
+     * @param other object to compare with <b>this</b>
+     * @return true if similar or equal; false otherwise
+     */
     boolean likeOrEqual(T other);
 
+    /**
+     * Verifies if objects are SIMILAR OR EQUAL in the in the specified group.
+     *
+     * @param other object to compare with <b>this</b>
+     * @param group in which the comparison is relevant
+     * @return true if similar or equal; false otherwise
+     */
     boolean likeOrEqual(T other, String group);
 }
