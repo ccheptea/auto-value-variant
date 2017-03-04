@@ -2,9 +2,10 @@
 
 An extension for Google's [AutoValue](https://github.com/google/auto/tree/master/value) 
 that generates a few handy methods to determine object variations based on statically defined variance groups.
-## Common use case
 
-Consider the the following class:
+## The problem
+
+Consider the following class:
 ```java
 @AutoValue abstract class Car{
     abstract String manufacturer();
@@ -36,7 +37,7 @@ This code is hard to read and maintain and can get worse if filters get more com
 Two objects are _variants_ if they are of the same type and are not equal except for a set of their properties.
 
 #### Long
-Lets call an object **A** _variant_ of object **B** _iff_ the followings apply:
+Lets call an object **A** _variant_ of object **B** if the followings apply:
 
 * **A** and **B** are of the same type
 * **A** and **B** have a set **F** of fields that are considered constant
@@ -61,15 +62,15 @@ Implement ``Variant``, then apply the ``@NonVariant`` annotation on fields you w
 }
 ```
 
-Then filtering will like this:
+Then filtering will look like this:
 ```java
 for(Car car : cars){
-    if(ref.variantOf(car)){
+    if(ref.like(car)){
         filtered.add(car);
     }
 }
 // or 
-filtered = cars.stream().filter(car -> ref.variantOf(car));
+filtered = cars.stream().filter(car -> ref.like(car));
 ```
 
 ## Multiple variant groups
@@ -99,13 +100,13 @@ public abstract class Car implements Variant<Car> {
     }
 }
 ```
-Then apply the ``variantOf(Object, String)`` method
+Then apply the ``like(Object, String)`` method
 
 ```java
 Car ref = new AutoValue_Car("Tesla", "Model S", "", 0xFF000000, "Sedan");
 
-similarTeslaModelSCars = cars.stream().filter(car -> ref.variantOf(car, Car.VariantGroups.IDENTITY));
-blackSedans = cars.stream().filter(car -> ref.variantOf(car, Car.VariantGroups.ASPECT));
+similarTeslaModelSCars = cars.stream().filter(car -> ref.like(car, Car.VariantGroups.IDENTITY));
+blackSedans = cars.stream().filter(car -> ref.like(car, Car.VariantGroups.ASPECT));
 ```
 
 ## Download

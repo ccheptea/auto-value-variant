@@ -9,12 +9,12 @@ final class AutoValue_ModelDummyAndSillyGroup extends $AutoValue_ModelDummyAndSi
     }
 
     @Override
-    public final boolean variantOf(ModelDummyAndSillyGroup other) {
-        return variantOf(other, "");
+    public final boolean like(ModelDummyAndSillyGroup other) {
+        return like(other, "");
     }
 
     @Override
-    public final boolean variantOf(ModelDummyAndSillyGroup other, String group) {
+    public final boolean like(ModelDummyAndSillyGroup other, String group) {
         return group != null
                 && other != null
                 && other instanceof ModelDummyAndSillyGroup
@@ -23,12 +23,12 @@ final class AutoValue_ModelDummyAndSillyGroup extends $AutoValue_ModelDummyAndSi
     }
 
     @Override
-    public final boolean variantOrEqual(ModelDummyAndSillyGroup other) {
-        return variantOrEqual(other, "");
+    public final boolean likeOrEqual(ModelDummyAndSillyGroup other) {
+        return likeOrEqual(other, "");
     }
 
     @Override
-    public final boolean variantOrEqual(ModelDummyAndSillyGroup other, String group) {
+    public final boolean likeOrEqual(ModelDummyAndSillyGroup other, String group) {
         return group != null
                 && other != null
                 && other instanceof ModelDummyAndSillyGroup

@@ -9,12 +9,12 @@ final class AutoValue_ModelNoGroup extends $AutoValue_ModelNoGroup {
     }
 
     @Override
-    public final boolean variantOf(ModelNoGroup other) {
-        return variantOf(other, "");
+    public final boolean like(ModelNoGroup other) {
+        return like(other, "");
     }
 
     @Override
-    public final boolean variantOf(ModelNoGroup other, String group) {
+    public final boolean like(ModelNoGroup other, String group) {
         return group != null
                 && other != null
                 && other instanceof ModelNoGroup
@@ -23,12 +23,12 @@ final class AutoValue_ModelNoGroup extends $AutoValue_ModelNoGroup {
     }
 
     @Override
-    public final boolean variantOrEqual(ModelNoGroup other) {
-        return variantOrEqual(other, "");
+    public final boolean likeOrEqual(ModelNoGroup other) {
+        return likeOrEqual(other, "");
     }
 
     @Override
-    public final boolean variantOrEqual(ModelNoGroup other, String group) {
+    public final boolean likeOrEqual(ModelNoGroup other, String group) {
         return group != null
                 && other != null
                 && other instanceof ModelNoGroup

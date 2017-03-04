@@ -10,12 +10,12 @@ final class AutoValue_ModelDummyGroup extends $AutoValue_ModelDummyGroup {
     }
 
     @Override
-    public final boolean variantOf(Object other) {
-        return variantOf(other, "");
+    public final boolean like(Object other) {
+        return like(other, "");
     }
 
     @Override
-    public final boolean variantOf(Object other, String group) {
+    public final boolean like(Object other, String group) {
         return group != null
                 && other != null
                 && other instanceof ModelDummyGroup
@@ -24,12 +24,12 @@ final class AutoValue_ModelDummyGroup extends $AutoValue_ModelDummyGroup {
     }
 
     @Override
-    public final boolean variantOrEqual(Object other) {
-        return variantOrEqual(other, "");
+    public final boolean likeOrEqual(Object other) {
+        return likeOrEqual(other, "");
     }
 
     @Override
-    public final boolean variantOrEqual(Object other, String group) {
+    public final boolean likeOrEqual(Object other, String group) {
         return group != null
                 && other != null
                 && other instanceof ModelDummyGroup

@@ -48,7 +48,7 @@ public class AutoValueVariantFunctionalityTest {
         CarMultipleGroups car1 = createCarMultipleGroups("Tesla", "Model S", "", 0, "");
         CarMultipleGroups car2 = createCarMultipleGroups("Tesla", null, "", 0, "");
 
-        assert !car1.variantOf(car2, CarMultipleGroups.VariantGroups.IDENTITY);
+        assert !car1.like(car2, CarMultipleGroups.VariantGroups.IDENTITY);
     }
 
     @Test
@@ -80,19 +80,19 @@ public class AutoValueVariantFunctionalityTest {
         expectedAspectVariants.add(carsWithMultipleGroups.get(6));
 
         for (CarMultipleGroups car : carsWithMultipleGroups) {
-            if (refIdentity.variantOf(car, CarMultipleGroups.VariantGroups.IDENTITY)) {
+            if (refIdentity.like(car, CarMultipleGroups.VariantGroups.IDENTITY)) {
                 identityVariants.add(car);
             }
 
-            if (refIdentity2.variantOf(car, CarMultipleGroups.VariantGroups.IDENTITY)) {
+            if (refIdentity2.like(car, CarMultipleGroups.VariantGroups.IDENTITY)) {
                 identity2Variants.add(car);
             }
 
-            if (refModelBody.variantOf(car, CarMultipleGroups.VariantGroups.MODEL_AND_BODY)) {
+            if (refModelBody.like(car, CarMultipleGroups.VariantGroups.MODEL_AND_BODY)) {
                 modelBodyVariants.add(car);
             }
 
-            if (refAspect.variantOf(car, CarMultipleGroups.VariantGroups.ASPECT)) {
+            if (refAspect.like(car, CarMultipleGroups.VariantGroups.ASPECT)) {
                 aspectVariants.add(car);
             }
         }
@@ -114,7 +114,7 @@ public class AutoValueVariantFunctionalityTest {
         expected.add(carsWithSingleGroup.get(1));
 
         for (CarSingleGroup car : carsWithSingleGroup) {
-            if (ref.variantOf(car, CarSingleGroup.VariantGroups.IDENTITY)) {
+            if (ref.like(car, CarSingleGroup.VariantGroups.IDENTITY)) {
                 result.add(car);
                 System.out.println(car.toString());
             }
@@ -134,7 +134,7 @@ public class AutoValueVariantFunctionalityTest {
         expected.add(carsWithDefaultGroup.get(1));
 
         for (CarDefaultGroup car : carsWithDefaultGroup) {
-            if (ref.variantOf(car)) {
+            if (ref.like(car)) {
                 result.add(car);
             }
         }
@@ -156,10 +156,10 @@ public class AutoValueVariantFunctionalityTest {
         variantsOnly.add(carsWithNoGroup.get(1));
 
         for (CarNoGroup car : carsWithNoGroup) {
-            if (ref.variantOf(car)) {
+            if (ref.like(car)) {
                 resultVariantsOnly.add(car);
             }
-            if (ref.variantOrEqual(car)) {
+            if (ref.likeOrEqual(car)) {
                 resultVariantsOrEquals.add(car);
             }
         }

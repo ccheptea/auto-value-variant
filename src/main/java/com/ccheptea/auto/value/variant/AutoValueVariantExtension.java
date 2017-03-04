@@ -43,10 +43,10 @@ public class AutoValueVariantExtension extends AutoValueExtension {
         ImmutableSet.Builder<ExecutableElement> methods = new ImmutableSet.Builder<>();
         for (ExecutableElement element : context.abstractMethods()) {
             switch (element.getSimpleName().toString()) {
-                case "variantOf":
+                case "like":
                     methods.add(element);
                     break;
-                case "variantOrEqual":
+                case "likeOrEqual":
                     methods.add(element);
                     break;
             }
@@ -153,17 +153,17 @@ public class AutoValueVariantExtension extends AutoValueExtension {
     }
 
     private static MethodSpec generateVariantOf(Name superName, TypeName parameterName) {
-        return MethodSpec.methodBuilder("variantOf") //
+        return MethodSpec.methodBuilder("like") //
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL) //
                 .returns(TypeName.BOOLEAN)
                 .addParameter(parameterName, "other")
-                .addCode("return variantOf(other, \"\");\n")
+                .addCode("return like(other, \"\");\n")
                 .build();
     }
 
     private static MethodSpec generateVariantOfInGroup(Name superName, TypeName parameterName) {
-        return MethodSpec.methodBuilder("variantOf") //
+        return MethodSpec.methodBuilder("like") //
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL) //
                 .returns(TypeName.BOOLEAN)
@@ -177,17 +177,17 @@ public class AutoValueVariantExtension extends AutoValueExtension {
     }
 
     private static MethodSpec generateVariantOrEqual(Name superName, TypeName parameterName) {
-        return MethodSpec.methodBuilder("variantOrEqual") //
+        return MethodSpec.methodBuilder("likeOrEqual") //
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL) //
                 .returns(TypeName.BOOLEAN)
                 .addParameter(parameterName, "other")
-                .addCode("return variantOrEqual(other, \"\");\n")
+                .addCode("return likeOrEqual(other, \"\");\n")
                 .build();
     }
 
     private static MethodSpec generateVariantOrEqualInGroup(Name superName, TypeName parameterName) {
-        return MethodSpec.methodBuilder("variantOrEqual") //
+        return MethodSpec.methodBuilder("likeOrEqual") //
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL) //
                 .returns(TypeName.BOOLEAN)
