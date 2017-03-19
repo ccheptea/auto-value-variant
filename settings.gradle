@@ -1,2 +1,6 @@
 rootProject.name = 'auto-value-variant'
+include 'runtime'
+findProject(':runtime')?.name = 'auto-value-variant-runtime'
+include 'processor'
+findProject(':processor')?.name = 'auto-value-variant-process'
 
