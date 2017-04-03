@@ -112,7 +112,8 @@ blackSedans = cars.stream().filter(car -> ref.like(car, Car.VariantGroups.ASPECT
 ## Download
 
 ```groovy
-compile 'com.ccheptea.auto.value:auto-value-variant:1.1.0'
+annotationProcessor 'com.ccheptea.auto.value:auto-value-variant:1.2.0'
+compile 'com.ccheptea.auto.value:auto-value-variant-runtime:1.2.0'
  ```
 
 Snapshots of the development version are available in [Sonatype's `snapshots` repository][snap].
